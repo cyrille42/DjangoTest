@@ -3,6 +3,7 @@ from rest_framework import viewsets, generics, permissions
 from stock.serializers import UserSerializer, GroupSerializer, ProductSerializer
 from stock.models import Product
 
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.

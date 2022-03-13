@@ -73,15 +73,15 @@ WSGI_APPLICATION = 'shop.wsgi.application'
 
 # enlever le password en dur
 DATABASES = {
-    	'default': {
-        	'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        	'NAME': 'shop',
-        	'USER': 'admin',
-        	'PASSWORD': '1234',
-        	'HOST': 'localhost',
-        	'PORT': '',
-    	}
-	}
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'shop',
+            'USER': 'admin',
+            'PASSWORD': '1234',
+            'HOST': 'localhost',
+            'PORT': '',
+        }
+    }
 
 
 # Password validation
