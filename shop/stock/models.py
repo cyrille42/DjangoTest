@@ -1,4 +1,4 @@
-from email.policy import default
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -27,5 +27,10 @@ class Product(models.Model):
 
 class Cart(models.Model):
     username = models.OneToOneField(User, on_delete=models.CASCADE)
-    product = models.ManyToManyField(Product)
+    # List of product id
+    product = ArrayField(
+        ArrayField(
+            models.IntegerField(),
+        ),
+    )
     validation = models.BooleanField(default=False)

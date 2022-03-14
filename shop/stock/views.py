@@ -2,7 +2,8 @@ from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, generics, permissions
 from stock.serializers import UserSerializer, GroupSerializer, ProductSerializer, CartSerializer
 from stock.models import Product, Cart
-
+from rest_framework import status
+from rest_framework.response import Response
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -33,7 +34,7 @@ class ProductList(generics.ListCreateAPIView):
 
 class CartCreate(generics.CreateAPIView):
     """
-    API endpoint that allows cart to be viewed or created.
+    API endpoint that allows cart to be created.
     """
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
