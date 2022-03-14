@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, generics, permissions
-from stock.serializers import UserSerializer, GroupSerializer, ProductSerializer
-from stock.models import Product
+from stock.serializers import UserSerializer, GroupSerializer, ProductSerializer, CartSerializer
+from stock.models import Product, Cart
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -29,3 +29,21 @@ class ProductList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class CartCreate(generics.CreateAPIView):
+    """
+    API endpoint that allows cart to be viewed or created.
+    """
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, format=None):
+        cart_serializer = CartSerializer(data=request.data)
+        if cart_serializer.is_valid():
+            cart_serializer.username = request.user
+            cart_serializer.save()
+            return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

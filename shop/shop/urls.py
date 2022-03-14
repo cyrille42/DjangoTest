@@ -11,4 +11,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('product/', views.ProductList.as_view(), name='product-list'),
+    path('cart', views.CartCreate.as_view(), name='cart-create'),
 ]

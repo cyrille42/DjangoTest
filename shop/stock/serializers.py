@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from stock.models import Product
+from stock.models import Product, Cart
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,4 +18,17 @@ class GroupSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
+        fields = '__all__'
+
+    def validate(self, data):
+        discount = data['discount']
+        if not (0 <= discount <= 100):
+            raise serializers.ValidationError('A discount must be between 0 and 100')
+
+        return data
+
+
+class CartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
         fields = '__all__'
