@@ -31,4 +31,8 @@ class ProductSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
-        fields = '__all__'
+        fields = ['product', 'validation']
+
+    def create(self, validated_data):
+        validated_data['username'] = self.context['request'].user
+        return super(CartSerializer, self).create(validated_data)

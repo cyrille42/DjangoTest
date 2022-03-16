@@ -26,11 +26,7 @@ class Product(models.Model):
 
 
 class Cart(models.Model):
-    username = models.OneToOneField(User, on_delete=models.CASCADE)
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
     # List of product id
-    product = ArrayField(
-        ArrayField(
-            models.IntegerField(),
-        ),
-    )
+    product = ArrayField(models.IntegerField())
     validation = models.BooleanField(default=False)

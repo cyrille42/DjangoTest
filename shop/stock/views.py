@@ -5,6 +5,7 @@ from stock.models import Product, Cart
 from rest_framework import status
 from rest_framework.response import Response
 
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -40,10 +41,18 @@ class CartCreate(generics.CreateAPIView):
     serializer_class = CartSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, format=None):
-        cart_serializer = CartSerializer(data=request.data)
+    def post(self, request):
+        cart_serializer = CartSerializer(data=request.data, context={'request': request})
         if cart_serializer.is_valid():
-            cart_serializer.username = request.user
+            cart_list = cart_serializer.validated_data.get('product').copy()
+            cart_list = set(cart_list)
+            error = ""
+            for product_id in cart_list:
+                product = Product.objects.get(pk=product_id)
+                if product.product_number < cart_serializer.validated_data.get('product').count(product_id):
+                    error += "The product " + product.product_name + " have " + str(product.product_number) + " left\n"
+            if error:
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
             cart_serializer.save()
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
