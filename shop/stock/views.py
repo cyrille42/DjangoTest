@@ -79,7 +79,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
             if cart_serializer.validated_data.get('validation') == True:
                 # pas oublie de delete le cart
                 total_price = 0
-                product_id_list = cart_serializer.validated_data.get('product')
+                product_id_list = set(cart_serializer.validated_data.get('product'))
                 product_paid = []
                 for product_id in product_id_list:
                     product = Product.objects.get(pk=product_id)
