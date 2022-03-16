@@ -33,6 +33,15 @@ class ProductList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+def check_number_of_product_left(cart_list, cart_serializer):
+    error = ""
+    for product_id in cart_list:
+        product = Product.objects.get(pk=product_id)
+        if product.product_number < cart_serializer.validated_data.get('product').count(product_id):
+            error += "The product " + product.product_name + " have only " + str(product.product_number) + " left\n"
+    return error
+
+
 class CartCreate(generics.ListCreateAPIView):
     """
     API endpoint that allows cart to be created.
@@ -46,11 +55,7 @@ class CartCreate(generics.ListCreateAPIView):
         if cart_serializer.is_valid():
             cart_list = cart_serializer.validated_data.get('product').copy()
             cart_list = set(cart_list)
-            error = ""
-            for product_id in cart_list:
-                product = Product.objects.get(pk=product_id)
-                if product.product_number < cart_serializer.validated_data.get('product').count(product_id):
-                    error += "The product " + product.product_name + " have only " + str(product.product_number) + " left\n"
+            error = check_number_of_product_left(cart_list, cart_serializer)
             if error:
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
             cart_serializer.save()
@@ -77,32 +82,33 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
         cart_serializer = CartDetailSerializer(data=request.data)
         if cart_serializer.is_valid():
             if cart_serializer.validated_data.get('validation') == True:
-                # pas oublie de delete le cart
                 total_price = 0
                 product_id_list = set(cart_serializer.validated_data.get('product'))
                 product_paid = []
                 for product_id in product_id_list:
                     product = Product.objects.get(pk=product_id)
-                    # handling both discount and special discount
                     product_count = product_id_list.count(product_id)
+                    discount_price = round(product.price - product.price * product.discount / 100, 2)
                     if product.special_discount > 0:
                         discounted_product = nb_free_item(product.special_discount, product.special_discount_gift, product_count)
                         normal_price_product = product_count - discounted_product
-                        # [product_id, price paid, discount%, nb__of_time]
                         product_paid.append([product_id, 0, 100, discounted_product])
-                        product_paid.append([product_id, product.price, 0, normal_price_product])
-                        total_price += product.price * normal_price_product
-                    else:
-                        product_paid.append([product_id, round(product.price * product.discount / 100, 2), product.discount, product_count])
-                        total_price += round(product.price * product.discount / 100, 2) * product_count
+                        product_paid.append([product_id, discount_price, product.discount, normal_price_product])
+                        total_price += discount_price * normal_price_product
+                    product_paid.append([product_id, discount_price, product.discount, product_count])
+                    total_price += discount_price * product_count
                 ticket_data = {
                     'product_paid': product_paid,
                     'total_amount': total_price
                 }
                 ticket_serializer = TicketSerializer(data=ticket_data)
                 if ticket_serializer.is_valid():
+                    error = check_number_of_product_left(product_id_list, cart_serializer)
+                    if error:
+                        return Response(error, status=status.HTTP_400_BAD_REQUEST)
                     Cart.objects.filter(id=pk).delete()
                     ticket = ticket_serializer.save()
+                    # edit product to change number of product left
                     return Response("Cart deleted and ticket " + str(ticket.id) + " created", status=status.HTTP_201_CREATED)
             # revérifier les stock avant validation
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
@@ -116,7 +122,6 @@ class TicketList(generics.ListAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
-
 
 
 class TicketDetail(generics.RetrieveDestroyAPIView):
