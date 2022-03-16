@@ -34,5 +34,5 @@ class Cart(models.Model):
 
 class Ticket(models.Model):
     # [product_id, price paid, discount%, nb_of_time]
-    product_paid = ArrayField(ArrayField(models.IntegerField()))
-    total_amount = models.IntegerField(default=0)
+    product_paid = ArrayField(ArrayField(models.FloatField()))
+    total_amount = models.FloatField(default=0)

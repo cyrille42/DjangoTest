@@ -87,14 +87,13 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                 product_paid = []
                 for product_id in product_id_list:
                     product = Product.objects.get(pk=product_id)
-                    product_count = product_id_list.count(product_id)
+                    product_count = cart_serializer.validated_data.get('product').count(product_id)
                     discount_price = round(product.price - product.price * product.discount / 100, 2)
                     if product.special_discount > 0:
                         discounted_product = nb_free_item(product.special_discount, product.special_discount_gift, product_count)
-                        normal_price_product = product_count - discounted_product
-                        product_paid.append([product_id, 0, 100, discounted_product])
-                        product_paid.append([product_id, discount_price, product.discount, normal_price_product])
-                        total_price += discount_price * normal_price_product
+                        product_count -= discounted_product
+                        if discounted_product != 0:
+                            product_paid.append([product_id, 0, 100, discounted_product])
                     product_paid.append([product_id, discount_price, product.discount, product_count])
                     total_price += discount_price * product_count
                 ticket_data = {
@@ -103,6 +102,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                 }
                 ticket_serializer = TicketSerializer(data=ticket_data)
                 if ticket_serializer.is_valid():
+                    print ("test")
                     error = check_number_of_product_left(product_id_list, cart_serializer)
                     if error:
                         return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -110,6 +110,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                     ticket = ticket_serializer.save()
                     # edit product to change number of product left
                     return Response("Cart deleted and ticket " + str(ticket.id) + " created", status=status.HTTP_201_CREATED)
+                return Response(ticket_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             # revérifier les stock avant validation
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
