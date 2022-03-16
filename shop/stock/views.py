@@ -78,7 +78,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
         if cart_serializer.is_valid():
             if cart_serializer.validated_data.get('validation') == True:
                 # pas oublie de delete le cart
-                price = 0
+                total_price = 0
                 product_id_list = cart_serializer.validated_data.get('product')
                 product_paid = []
                 for product_id in product_id_list:
@@ -91,13 +91,13 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                         # [product_id, price paid, discount%, nb__of_time]
                         product_paid.append([product_id, 0, 100, discounted_product])
                         product_paid.append([product_id, product.price, 0, normal_price_product])
-                        price += product.price * normal_price_product
+                        total_price += product.price * normal_price_product
                     else:
                         product_paid.append([product_id, round(product.price * product.discount / 100, 2), product.discount, product_count])
-                        price += round(product.price * product.discount / 100, 2) * product_count
+                        total_price += round(product.price * product.discount / 100, 2) * product_count
                 ticket_data = {
                     'product_paid': product_paid,
-                    'total_amount': price
+                    'total_amount': total_price
                 }
                 ticket_serializer = TicketSerializer(data=ticket_data)
                 if ticket_serializer.is_valid():
