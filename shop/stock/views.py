@@ -28,9 +28,17 @@ class ProductList(generics.ListCreateAPIView):
     """
     API endpoint that allows product to be viewed or created.
     """
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        arguement = self.request.query_params.get('argument')
+        if arguement:
+            try:
+                product_list = Product.objects.all().order_by(arguement)
+            except Exception:
+                product_list = Product.objects.all()
+        return product_list
 
 
 def check_number_of_product_left(cart_list, cart_serializer):
