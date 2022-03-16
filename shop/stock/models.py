@@ -21,8 +21,8 @@ class Product(models.Model):
     product_number = models.IntegerField()
     product_number_max = models.IntegerField()
     discount = models.IntegerField(default=0)
-    special_discount = models.IntegerField(default=1)
-    special_discount_gift = models.IntegerField(default=1)
+    special_discount = models.IntegerField(default=0)
+    special_discount_gift = models.IntegerField(default=0)
 
 
 class Cart(models.Model):
@@ -30,3 +30,9 @@ class Cart(models.Model):
     # List of product id
     product = ArrayField(models.IntegerField())
     validation = models.BooleanField(default=False)
+
+
+class Ticket(models.Model):
+    # [product_id, price paid, discount%, nb_of_time]
+    product_paid = ArrayField(ArrayField(models.IntegerField()))
+    total_amount = models.IntegerField(default=0)
