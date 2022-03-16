@@ -102,7 +102,6 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                 }
                 ticket_serializer = TicketSerializer(data=ticket_data)
                 if ticket_serializer.is_valid():
-                    print ("test")
                     error = check_number_of_product_left(product_id_list, cart_serializer)
                     if error:
                         return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -111,7 +110,6 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                     # edit product to change number of product left
                     return Response("Cart deleted and ticket " + str(ticket.id) + " created", status=status.HTTP_201_CREATED)
                 return Response(ticket_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            # revérifier les stock avant validation
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

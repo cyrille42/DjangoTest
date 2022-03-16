@@ -17,4 +17,3 @@ urlpatterns = [
     path('ticket/', views.TicketList.as_view(), name='ticket-list'),
     re_path(r'^ticket/(?P<pk>[0-9]+)/$', views.TicketDetail.as_view(), name='ticket-detail'),
 ]
-
