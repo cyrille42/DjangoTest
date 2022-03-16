@@ -116,3 +116,13 @@ class TicketList(generics.ListAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+
+class TicketDetail(generics.RetrieveDestroyAPIView):
+    """
+    API endpoint that allows product to be viewed or created.
+    """
+    queryset = Ticket.objects.all()
+    serializer_class = TicketSerializer
+    permission_classes = [permissions.IsAuthenticated]

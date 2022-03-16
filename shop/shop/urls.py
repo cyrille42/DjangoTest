@@ -15,5 +15,6 @@ urlpatterns = [
     path('cart/', views.CartCreate.as_view(), name='cart-create'),
     re_path(r'^cart/(?P<pk>[0-9]+)/$', views.CartDetail.as_view(), name='cart-detail'),
     path('ticket/', views.TicketList.as_view(), name='ticket-list'),
+    re_path(r'^ticket/(?P<pk>[0-9]+)/$', views.TicketDetail.as_view(), name='ticket-detail'),
 ]
 
