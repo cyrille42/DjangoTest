@@ -97,7 +97,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                         price += round(product.price * product.discount / 100, 2) * product_count
                 ticket_data = {
                     'product_paid': product_paid,
-                    'price': price
+                    'total_amount': price
                 }
                 ticket_serializer = TicketSerializer(data=ticket_data)
                 if ticket_serializer.is_valid():
