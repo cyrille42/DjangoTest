@@ -108,3 +108,11 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class TicketList(generics.ListAPIView):
+    """
+    API endpoint that allows product to be viewed or created.
+    """
+    queryset = Ticket.objects.all()
+    serializer_class = TicketSerializer
+    permission_classes = [permissions.IsAuthenticated]
