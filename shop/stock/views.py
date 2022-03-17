@@ -32,10 +32,10 @@ class ProductList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        argument = self.request.query_params.get('argument')
-        if argument:
+        order_by = self.request.query_params.get('order_by')
+        if order_by:
             try:
-                product_list = Product.objects.all().order_by(argument)
+                product_list = Product.objects.all().order_by(order_by)
             except Exception:
                 product_list = Product.objects.all()
         return product_list
