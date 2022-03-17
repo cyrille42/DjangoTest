@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets, generics, permissions
 from stock.serializers import UserSerializer, GroupSerializer, ProductSerializer, CartSerializer, TicketSerializer, CartDetailSerializer
 from stock.models import Product, Cart, Ticket
-from rest_framework import status
+from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
 
 
@@ -29,7 +28,6 @@ class ProductList(generics.ListCreateAPIView):
     API endpoint that allows product to be viewed or created.
     """
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         order_by = self.request.query_params.get('order_by')
@@ -38,6 +36,15 @@ class ProductList(generics.ListCreateAPIView):
         except Exception:
             product_list = Product.objects.all()
         return product_list
+
+
+class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint that allows product to be viewed or created.
+    """
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 def check_number_of_product_left(unique_product_list, product_list):
@@ -108,7 +115,7 @@ def get_ticket_data_from_cart(cart_serializer, product_id_list):
 
 class CartDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    API endpoint that allows cart to be updated or deleted.
+    API endpoint that allows cart to be viewed, updated or deleted.
     """
     queryset = Cart.objects.all()
     serializer_class = CartDetailSerializer
