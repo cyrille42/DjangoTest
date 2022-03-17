@@ -76,8 +76,7 @@ def nb_free_item(special_discount, special_discount_gift, nb_total):
     return max(0, r - special_discount) + (n * special_discount_gift)
 
 
-# Editing stock left from paid product
-def changing_paid_stock(product_id_list, total_product):
+def editing_stock_left(product_id_list, total_product):
     for product_id in product_id_list:
         product = Product.objects.get(pk=product_id)
         product_paid = total_product.count(product_id)
@@ -129,7 +128,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                         return Response(error, status=status.HTTP_400_BAD_REQUEST)
                     Cart.objects.filter(id=pk).delete()
                     ticket = ticket_serializer.save()
-                    changing_paid_stock(unique_product_list, product_list)
+                    editing_stock_left(unique_product_list, product_list)
                     return Response("Cart deleted and ticket " + str(ticket.id) + " created", status=status.HTTP_201_CREATED)
                 return Response(ticket_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
@@ -138,7 +137,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class TicketList(generics.ListAPIView):
     """
-    API endpoint that allows product to be viewed or created.
+    API endpoint that allows product to be viewed.
     """
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
@@ -147,7 +146,7 @@ class TicketList(generics.ListAPIView):
 
 class TicketDetail(generics.RetrieveDestroyAPIView):
     """
-    API endpoint that allows product to be viewed or created.
+    API endpoint that allows product to be viewed or deleted.
     """
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
