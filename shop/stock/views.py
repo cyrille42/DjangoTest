@@ -33,11 +33,10 @@ class ProductList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         order_by = self.request.query_params.get('order_by')
-        if order_by:
-            try:
-                product_list = Product.objects.all().order_by(order_by)
-            except Exception:
-                product_list = Product.objects.all()
+        try:
+            product_list = Product.objects.all().order_by(order_by)
+        except Exception:
+            product_list = Product.objects.all()
         return product_list
 
 
@@ -71,11 +70,19 @@ class CartCreate(generics.ListCreateAPIView):
         return Response(cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# x = special_discount y = special_discount_gift, count = number total of same product
-def nb_free_item(x, y, count):
-    r = count % (x + y)
-    n = (count - r) / (x + y)
-    return max(0, r - x) + (n * y)
+# Calculate the number of free item in, X buy Y offer, discount
+def nb_free_item(special_discount, special_discount_gift, nb_total):
+    r = nb_total % (special_discount + special_discount_gift)
+    n = (nb_total - r) / (special_discount + special_discount_gift)
+    return max(0, r - special_discount) + (n * special_discount_gift)
+
+
+def changing_paid_stock(product_id_list, total_product):
+    for product_id in product_id_list:
+        product = Product.objects.get(pk=product_id)
+        product_paid = total_product.count(product_id)
+        product.product_number = product.product_number - product_paid
+        product.save()
 
 
 class CartDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -115,7 +122,7 @@ class CartDetail(generics.RetrieveUpdateDestroyAPIView):
                         return Response(error, status=status.HTTP_400_BAD_REQUEST)
                     Cart.objects.filter(id=pk).delete()
                     ticket = ticket_serializer.save()
-                    # edit product to change number of product left
+                    changing_paid_stock(product_id_list, cart_serializer.validated_data.get('product'))
                     return Response("Cart deleted and ticket " + str(ticket.id) + " created", status=status.HTTP_201_CREATED)
                 return Response(ticket_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
